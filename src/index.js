@@ -32,11 +32,21 @@ app.use(express.json());
 // Serve the test SSO UI at /test instead of root to avoid confusion
 app.use('/test', express.static('public'));
 
-// ─── Root Redirect ────────────────────────────────────────────────────────────
-// Redirect root to frontend (avoids confusion during dev)
+// ─── Root ─────────────────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8443';
-  res.redirect(frontendUrl);
+  res.json({
+    name: 'egovSSOapi',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: [
+      'GET /health',
+      'POST /api/auth/sso/egov',
+      'GET /api/auth/sso/callback',
+      'POST /api/programs/profile',
+      'POST /api/programs/match',
+      'POST /api/programs/chat',
+    ],
+  });
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
