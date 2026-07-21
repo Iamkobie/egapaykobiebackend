@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eGov SSO — Login Successful</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .banner {
+      background: #0057b8;
+      color: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255,255,255,.4);
+      flex-shrink: 0;
+      background: rgba(255,255,255,.2);
+    }
+
+    .banner-text h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .banner-text p {
+      opacity: .85;
+      font-size: .9rem;
+    }
+
+    .badge-success {
+      margin-left: auto;
+      background: #48bb78;
+      color: #fff;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: .8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      padding: 24px;
+    }
+
+    .card.full { grid-column: 1 / -1; }
+
+    .card h2 {
+      font-size: .85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: #0057b8;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 2px;
+    }
+
+    .field span {
+      font-size: .92rem;
+      color: #1a202c;
+      word-break: break-word;
+    }
+
+    .field span.null { color: #a0aec0; font-style: italic; }
+
+    .token-box {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: .78rem;
+      color: #4a5568;
+      word-break: break-all;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      padding: 10px 20px;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      color: #4a5568;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-logout:hover { border-color: #fc8181; color: #c53030; }
+
+    #loading {
+      text-align: center;
+      padding: 80px 0;
+      color: #718096;
+      font-size: 1rem;
+    }
+
+    #profile { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading">Loading profile…</div>
+
+    <div id="profile">
+      <!-- Banner -->
+      <div class="banner">
+        <img id="avatarImg" class="avatar" src="" alt="Profile photo" />
+        <div class="banner-text">
+          <h1 id="fullName">—</h1>
+          <p id="emailDisplay">—</p>
+        </div>
+        <span class="badge-success">✓ Authenticated</span>
+      </div>
+
+      <div class="grid">
+
+        <!-- Personal Info -->
+        <div class="card">
+          <h2>Personal Information</h2>
+          <div class="field"><label>Unique ID (eGov)</label><span id="f-uniqid"></span></div>
+          <div class="field"><label>Birth Date</label><span id="f-birthDate"></span></div>
+          <div class="field"><label>Gender</label><span id="f-gender"></span></div>
+          <div class="field"><label>Nationality</label><span id="f-nationality"></span></div>
+          <div class="field"><label>Mobile</label><span id="f-mobile"></span></div>
+          <div class="field"><label>Suffix</label><span id="f-suffix"></span></div>
+        </div>
+
+        <!-- Address -->
+        <div class="card">
+          <h2>Address</h2>
+          <div class="field"><label>Full Address</label><span id="f-address"></span></div>
+          <div class="field"><label>Street</label><span id="f-street"></span></div>
+          <div class="field"><label>Barangay</label><span id="f-barangay"></span></div>
+          <div class="field"><label>Municipality</label><span id="f-municipality"></span></div>
+          <div class="field"><label>Province</label><span id="f-province"></span></div>
+          <div class="field"><label>Region</label><span id="f-region"></span></div>
+          <div class="field"><label>Country</label><span id="f-country"></span></div>
+          <div class="field"><label>Postal</label><span id="f-postal"></span></div>
+        </div>
+
+        <!-- Passport -->
+        <div class="card">
+          <h2>Passport</h2>
+          <div id="passportSection"></div>
+        </div>
+
+        <!-- National ID -->
+        <div class="card">
+          <h2>National ID</h2>
+          <div id="nationalIdSection"></div>
+        </div>
+
+        <!-- App Token -->
+        <div class="card full">
+          <h2>App JWT (your session token)</h2>
+          <div class="token-box" id="tokenDisplay"></div>
+        </div>
+
+      </div>
+
+      <a href="/" class="btn-logout" id="logoutBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zm5-9H11v2h10v14H11v2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+        </svg>
+        Sign out
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function val(v) {
+      return (v === null || v === undefined || v === '')
+        ? '<span class="null">—</span>'
+        : v;
+    }
+
+    function set(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = val(value);
+    }
+
+    function renderKeyValue(obj, container) {
+      if (!obj) {
+        container.innerHTML = '<span class="null">Not available</span>';
+        return;
+      }
+      container.innerHTML = Object.entries(obj)
+        .map(([k, v]) => `
+          <div class="field">
+            <label>${k.replace(/_/g, ' ')}</label>
+            <span>${val(v)}</span>
+          </div>`)
+        .join('');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Pick up token from URL (callback redirect) or localStorage (POST flow)
+      const params = new URLSearchParams(window.location.search);
+      const urlToken = params.get('token');
+
+      if (urlToken) {
+        localStorage.setItem('app_token', urlToken);
+        // Clean the token out of the URL without reloading
+        history.replaceState({}, '', window.location.pathname);
+      }
+
+      const token = localStorage.getItem('app_token');
+      const cachedUser = localStorage.getItem('app_user');
+
+      if (!token) {
+        window.location.href = '/?error=not_authenticated';
+        return;
+      }
+
+      // If we already have the user object cached (POST flow), use it directly
+      if (cachedUser) {
+        renderProfile(JSON.parse(cachedUser), token);
+        return;
+      }
+
+      // Otherwise we only have a token (callback redirect flow) — show what we can
+      // decode from the JWT payload (non-sensitive claims only)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        document.getElementById('loading').textContent =
+          'Token received. Full profile available after next login.';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('tokenDisplay') &&
+          (document.getElementById('profile').style.display = 'block');
+        renderProfile({ email: payload.email, uniqid: payload.uniqid }, token);
+      } catch {
+        window.location.href = '/?error=invalid_token';
+      }
+    });
+
+    function renderProfile(user, token) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('profile').style.display = 'block';
+
+      // Banner
+      document.getElementById('avatarImg').src = user.photo || '';
+      document.getElementById('fullName').textContent =
+        [user.firstName || user.first_name, user.middleName || user.middle_name, user.lastName || user.last_name].filter(Boolean).join(' ') || '—';
+      document.getElementById('emailDisplay').textContent = user.email || '—';
+
+      // Personal
+      set('f-uniqid', user.uniqid);
+      set('f-birthDate', user.birthDate || user.birth_date);
+      set('f-gender', user.gender);
+      set('f-nationality', user.nationality);
+      set('f-mobile', user.mobile);
+      set('f-suffix', user.suffix);
+
+      // Address
+      set('f-address', user.address);
+      set('f-street', user.street);
+      set('f-barangay', user.barangay);
+      set('f-municipality', user.municipality);
+      set('f-province', user.province);
+      set('f-region', user.region);
+      set('f-country', user.country);
+      set('f-postal', user.postal);
+
+      // Passport
+      renderKeyValue(user.passport, document.getElementById('passportSection'));
+
+      // National ID
+      const nid = user.nationalId || user.national_id
+        ? { code: (user.nationalId || user.national_id)?.code, pcn: (user.nationalId || user.national_id)?.pcn }
+        : null;
+      renderKeyValue(nid, document.getElementById('nationalIdSection'));
+
+      // Token
+      document.getElementById('tokenDisplay').textContent = token;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('app_token');
+      localStorage.removeItem('app_user');
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>
