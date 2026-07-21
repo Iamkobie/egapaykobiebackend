@@ -102,4 +102,39 @@ async function egovSSOLogin(req, res, next) {
   }
 }
 
-module.exports = { egovSSOCallback, egovSSOLogin };
+/**
+ * GET /api/auth/profile?user_id=xxx
+ * Returns the user's eGov profile from user_metadata using service role key.
+ * This bypasses RLS so the frontend can always get the profile.
+ */
+async function getUserProfile(req, res, next) {
+  try {
+    const { user_id } = req.query;
+    if (!user_id) {
+      return res.status(400).json({ status: 400, message: 'user_id is required' });
+    }
+
+    const supabase = require('../supabase');
+    const { data, error } = await supabase
+      .from('user_metadata')
+      .select('value')
+      .eq('user_id', user_id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      return res.status(500).json({ status: 500, message: error.message });
+    }
+
+    if (!data || !data.value) {
+      return res.status(404).json({ status: 404, message: 'Profile not found' });
+    }
+
+    return res.status(200).json({ status: 200, data: data.value });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { egovSSOCallback, egovSSOLogin, getUserProfile };

@@ -1,7 +1,13 @@
 const { Router } = require('express');
-const { egovSSOCallback, egovSSOLogin } = require('../controllers/auth.controller');
+const { egovSSOCallback, egovSSOLogin, getUserProfile } = require('../controllers/auth.controller');
 
 const router = Router();
+
+/**
+ * GET /api/auth/profile?user_id=xxx
+ * Returns the user's stored eGov profile (bypasses RLS via service role).
+ */
+router.get('/profile', getUserProfile);
 
 /**
  * GET /api/auth/sso/callback
